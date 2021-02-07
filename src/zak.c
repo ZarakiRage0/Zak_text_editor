@@ -3,17 +3,37 @@
 struct termios origin_termios;
 
 void enableRawMode(){
-  tcgetattr(STDIN_FILENO, &origin_termios); /*get the terminos stuct*/
-  atexit(disableRawMode);/* execute the disable function at exit*/
 
+  if (tcgetattr(STDIN_FILENO, &origin_termios)){/*gets the terminos stuct*/
+    die("tcgetattr");
+  }
+  atexit(disableRawMode);/* executes the disable function at exit*/
 
   struct termios raw = origin_termios;/* to not change the attributes of origin*/
-  raw.c_lflag &= ~(ECHO | ICANON);/* turns off echo and cononical mode*/
-   /* ~ is NOT, &= and + assign*/
 
-  tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);/*then it sets it*/
+  /* (in bitwise operators) ~ is NOT, &= (and + assign) */
+
+  raw.c_lflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);/* turns off crt-m, ctrl-s and ctrl-q and some other flags*/
+  raw.c_oflag &= ~(OPOST);/* turns off output processing*/
+  raw.c_cflag |= (CS8);/* sets the char size to 8 bits */
+  raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);/* turns off echo, cononical mode, ctrl-v,  ctrl-c and ctrl-z*/
+
+  /* read() timeout*/
+  raw.c_cc[VMIN] = 0;
+  raw.c_cc[VTIME] = 1;
+
+  if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw)){
+    die("tcsetattr");
+  };/*then it sets it*/
 }
 
 void disableRawMode(){
-  tcsetattr(STDIN_FILENO, TCSAFLUSH, &origin_termios);
+  if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &origin_termios) == -1){
+    die("tcsetattr");
+  }
+}
+
+void die(const char *s) {
+  perror(s);
+  exit(1);
 }
