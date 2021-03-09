@@ -50,7 +50,7 @@ struct editorConfig {
   int screenrows;
   int screencols;
   int numrows;
-  erow row;
+  erow* row;
   struct termios origin_termios;
 };
 
@@ -154,4 +154,13 @@ void abFree(struct abuf *ab);
   *@brief Opens and Reads file from a disk
   */
 void editorOpen(char*);
+
+
+/*** row operations ***/
+
+/**
+  *@brief allocates space for a new erow, then copies it to the end
+  * of E.row array.
+  */
+void editorAppendRow(char*, int);
 #endif
