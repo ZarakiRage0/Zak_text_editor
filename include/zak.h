@@ -1,6 +1,10 @@
 #ifndef ZAK_H
 #define ZAH_H
 
+#define _DEFAULT_SOURCE
+#define _BSD_SOURCE
+#define _GNU_SOURCE
+
 #include <termios.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -9,7 +13,9 @@
 #include <errno.h>
 #include <sys/ioctl.h>
 #include <string.h>
+#include <sys/types.h>
 
+/*** defines ***/
 #define ZAK_VERSION "0.0.1"
 
 #define CTRL_KEY(k) ( (k) & 0x1f )
@@ -26,10 +32,25 @@ enum editorKey {
   PAGE_DOWN
 };
 
+/*** data ***/
+
+/**
+  *@brief Stores a row of text
+  */
+typedef struct erow{
+  int size;
+  char* chars;
+} erow;
+
+/**
+  *@brief A struct containing our editor state
+  */
 struct editorConfig {
   int cx, cy; //cursor pos
   int screenrows;
   int screencols;
+  int numrows;
+  erow row;
   struct termios origin_termios;
 };
 
@@ -106,6 +127,10 @@ void initEditor();
 
 
 /*** append buffer ***/
+
+/**
+  *@brief append buffer struct used to write the screen
+  */
 struct abuf {
   char *b;
   int len;
@@ -122,4 +147,11 @@ void abAppend(struct abuf* ab, const char* c, int length);
   */
 void abFree(struct abuf *ab);
 
+
+/*** File I/O ***/
+
+/**
+  *@brief Opens and Reads file from a disk
+  */
+void editorOpen(char*);
 #endif
