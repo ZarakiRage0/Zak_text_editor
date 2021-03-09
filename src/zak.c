@@ -147,7 +147,7 @@ void editorMoveCursor(int key) {
       }
       break;
     case ARROW_DOWN:
-      if (E.cy != E.screenrows - 1) {
+      if (E.cy < E.numrows) {
         E.cy++;
       }
       break;
@@ -191,15 +191,28 @@ void editorProcessKeyPress(){
 
 
 /*** output ***/
+
+void editorScroll(){
+  if ( E.cy < E.rowoff){ // above visible window
+    E.rowoff = E.cy;
+  }
+
+  if ( E.cy >= E.rowoff + E.screenrows){
+    E.rowoff = E.cy - E.screenrows + 1; //below visible window
+  }
+}
+
 void editorDrawRows(struct abuf *ab) {
   int y;
   char welcome[80];
   int welcomelen;
   int padding;
   int len;
+  int filerow;
   /* either writes the rows of write en empty line */
   for (y = 0; y < E.screenrows; y++) {
-    if( y >= E.numrows ){ /* empty line */
+    filerow = y + E.rowoff;
+    if( filerow >= E.numrows ){ /* empty line */
       if (E.numrows == 0 && y == E.screenrows / 3) {
         welcomelen = snprintf(welcome, sizeof(welcome),"ZAK editor -- version %s", ZAK_VERSION);
         if (welcomelen > E.screencols) {
@@ -220,11 +233,11 @@ void editorDrawRows(struct abuf *ab) {
       }
     }
     else{
-      len = E.row[y].size;
+      len = E.row[filerow].size;
       if (len > E.screencols) {
         len = E.screencols;
       }
-      abAppend(ab, E.row[y].chars, len);
+      abAppend(ab, E.row[filerow].chars, len);
     }
 
     abAppend(ab, "\x1b[K", 3);
@@ -236,6 +249,8 @@ void editorDrawRows(struct abuf *ab) {
 }
 
 void editorRefreshScreen() {
+  editorScroll();//set up E.row
+
   struct abuf ab = ABUF_INIT;
 
   abAppend(&ab, "\x1b[?25l", 6);//hides the cursor.
@@ -244,7 +259,7 @@ void editorRefreshScreen() {
   editorDrawRows(&ab);
 
   char buf[32];
-  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy + 1, E.cx + 1);
+  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", (E.cy - E.rowoff) + 1, E.cx + 1);
   abAppend(&ab, buf, strlen(buf));//reposition the cursor.
 
   abAppend(&ab, "\x1b[?25h", 6);//shows back the cursor.
@@ -258,6 +273,7 @@ void editorRefreshScreen() {
 void initEditor() {
   E.cx = 0;
   E.cy = 0;
+  E.rowoff = 0;
   E.numrows = 0;
   E.row = NULL;
 

@@ -47,6 +47,7 @@ typedef struct erow{
   */
 struct editorConfig {
   int cx, cy; //cursor pos
+  int rowoff; //row offset
   int screenrows;
   int screencols;
   int numrows;
@@ -108,6 +109,12 @@ void editorMoveCursor(int key);
 void editorProcessKeyPress();
 
 /*** output ***/
+
+/**
+  *@brief Sets up row offset depending on the file cursor
+  */
+void editorScroll();
+
 /**
   *@brief draws '~' after the end of the file being edited.
   */
