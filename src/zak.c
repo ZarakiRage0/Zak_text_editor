@@ -153,6 +153,13 @@ void editorMoveCursor(int key) {
       }
       break;
     }
+    // snap back to end of line
+    row = (E.cy >= E.numrows) ? NULL : &E.row[E.cy];
+    int len = row ? row->size : 0;
+    if ( E.cx > len ){
+      E.cx = len;
+    }
+
 }
 
 void editorProcessKeyPress(){
