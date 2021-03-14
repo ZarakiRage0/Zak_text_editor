@@ -17,6 +17,7 @@
 
 /*** defines ***/
 #define ZAK_VERSION "0.0.1"
+#define TAB_STOP 8
 
 #define CTRL_KEY(k) ( (k) & 0x1f )
 
@@ -39,7 +40,9 @@ enum editorKey {
   */
 typedef struct erow{
   int size;
+  int rsize;
   char* chars;
+  char* render;
 } erow;
 
 /**
@@ -47,6 +50,7 @@ typedef struct erow{
   */
 struct editorConfig {
   int cx, cy; //cursor pos
+  int rx; // rendered cursor x pos
   int rowoff; //row offset
   int coloff; //column offset
   int screenrows;
@@ -171,4 +175,14 @@ void editorOpen(char*);
   * of E.row array.
   */
 void editorAppendRow(char*, int);
+
+/**
+  *@brief writes the string of  row in the render .
+  */
+void editorUpdateRow(erow *row);
+
+/**
+  *@brief get the rendered x pos of the cursor
+  */
+int editorRowCxToRx(erow *row, int cx);
 #endif
