@@ -14,6 +14,8 @@
 #include <sys/ioctl.h>
 #include <string.h>
 #include <sys/types.h>
+#include <time.h>
+#include <stdarg.h>
 
 /*** defines ***/
 #define ZAK_VERSION "0.0.1"
@@ -57,10 +59,36 @@ struct editorConfig {
   int screencols;
   int numrows;
   erow* row;
+  char* filename;
+  char statusmsg[80];
+  time_t statusmsg_time;
   struct termios origin_termios;
 };
 
 struct editorConfig E;
+
+/*** append buffer ***/
+
+/**
+  *@brief append buffer struct used to write the screen
+  */
+struct abuf {
+  char *b;
+  int len;
+};
+#define ABUF_INIT {NULL, 0}
+
+/**
+  *@brief appends a string to a buffer
+  */
+void abAppend(struct abuf* ab, const char* c, int length);
+
+/**
+  *@brief frees the buffer
+  */
+void abFree(struct abuf* ab);
+
+
 /*** terminal ***/
 
 /**
@@ -125,11 +153,28 @@ void editorScroll();
   */
 void editorDrawRows();
 
+
+/**
+  *@brief writes status bar
+  */
+void editorDrawStatusBar(struct abuf *ab);
+
 /**
   *@brief renders the interface.
   * clears the screen and reposition the cursor.
   */
 void editorRefreshScreen();
+
+/**
+  *@brief
+  */
+void editorSetStatusMessage(const char *fmt, ...);
+
+
+/**
+  *@brief draw message bar
+  */
+void editorDrawMessageBar(struct abuf *ab);
 
 /*** init ***/
 /**
@@ -137,27 +182,6 @@ void editorRefreshScreen();
   */
 void initEditor();
 
-
-/*** append buffer ***/
-
-/**
-  *@brief append buffer struct used to write the screen
-  */
-struct abuf {
-  char *b;
-  int len;
-};
-#define ABUF_INIT {NULL, 0}
-
-/**
-  *@brief appends a string to a buffer
-  */
-void abAppend(struct abuf* ab, const char* c, int length);
-
-/**
-  *@brief frees the buffer
-  */
-void abFree(struct abuf *ab);
 
 
 /*** File I/O ***/
