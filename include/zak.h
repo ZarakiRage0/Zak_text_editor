@@ -166,7 +166,7 @@ void editorDrawStatusBar(struct abuf *ab);
 void editorRefreshScreen();
 
 /**
-  *@brief
+  *@brief Writes the status message
   */
 void editorSetStatusMessage(const char *fmt, ...);
 
@@ -209,4 +209,19 @@ void editorUpdateRow(erow *row);
   *@brief get the rendered x pos of the cursor
   */
 int editorRowCxToRx(erow *row, int cx);
+
+/**
+  *@brief inserts a char in an erow at a certain pos.
+  */
+void editorRowInsertChar(erow* row, int at, int c);
+
+/*** Editor Operations ***/
+
+/**
+  *@brief Inserts a char in the editor.
+  * adds a row if it's at the end of the file.
+  * move the cursor accordingly.
+  */
+void editorInsertChar(int c);
+
 #endif
