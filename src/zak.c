@@ -208,6 +208,9 @@ void editorProcessKeyPress(){
     case ARROW_RIGHT:
       editorMoveCursor(c);
       break;
+    default :
+      editorInsertChar(c);
+      break;
   }
 }
 
@@ -467,4 +470,15 @@ int editorRowCxToRx(erow *row, int cx){
     rx++;
   }
   return rx;
+}
+
+void editorRowInsertChar(erow* row, int at, int c){
+  if ( at < 0 || at > row->size) {
+    at = row->size;
+  }
+  row->chars = realloc(row->chars, row->size + 2);
+  memmove(&row->chars[at + 1], &row->chars[at], row->size - at + 1);
+  row->size++;
+  row->chars[at] = c;
+  editorUpdateRow(row);
 }
